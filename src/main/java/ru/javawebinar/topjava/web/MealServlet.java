@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.web;
 
+import dao.MealDAO;
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.util.DataSource;
 
@@ -15,12 +16,13 @@ import static ru.javawebinar.topjava.util.MealsUtil.filteredByStreams;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
+    private static final MealDAO MEAL_DAO = new MealDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.debug("redirect to meals");
-        request.setAttribute("meals",filteredByStreams(DataSource.getMeals(), LocalTime.of(0, 0), LocalTime.of(23, 59), 2000));
-        // request.getRequestDispatcher("/users.jsp").forward(request, response);
-        response.sendRedirect("meals.jsp");
+         log.debug("redirect to meals");
+         request.setAttribute("meals",filteredByStreams(MEAL_DAO.findAll(), LocalTime.MIN, LocalTime.MAX, 2000));
+         request.getRequestDispatcher("/meals.jsp").forward(request, response);
+       // response.sendRedirect("meals.jsp");
     }
 }
