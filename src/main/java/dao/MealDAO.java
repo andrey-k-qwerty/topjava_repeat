@@ -24,8 +24,12 @@ public class MealDAO implements AbstractDAO<Integer,Meal> {
     }
 
     @Override
-    public boolean create(Meal entity) {
-        return false;
+    public boolean create(Meal meal) {
+        if (meal.getID() == 0) {
+            meal.setID(dataSource.getNextID());
+        }
+        return dataSource.getMeals().add(meal);
+
     }
 
     @Override
