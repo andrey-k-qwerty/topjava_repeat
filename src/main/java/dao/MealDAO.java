@@ -5,7 +5,7 @@ import ru.javawebinar.topjava.util.DataSource;
 
 import java.util.List;
 
-public class MealDAO implements AbstractDAO<Integer,Meal> {
+public class MealDAO implements AbstractDAO<Integer, Meal> {
     DataSource dataSource = DataSource.getInstance();
 
     @Override
@@ -34,6 +34,12 @@ public class MealDAO implements AbstractDAO<Integer,Meal> {
 
     @Override
     public Meal update(Meal entity) {
-        return null;
+     return    dataSource.getMeals().stream()
+                .filter(meal -> meal.getID() == entity.getID())
+                .peek(meal -> {
+                    meal.setCalories(entity.getCalories());
+                    meal.setDescription(entity.getDescription());
+                    meal.setDateTime(entity.getDateTime());
+                }).findFirst().orElse(null);
     }
 }

@@ -20,7 +20,7 @@
     <p>Дата:     <input type="datetime-local"   id="date" name="date" value="${myDate}" ></p>
     <p>Описание: <input type="text" name="description" value="${meal.description}" ></p>
     <p>Каллории: <input type="number" min="0" max="10000" name="calories" value="${meal.calories}" ></p>
-    <p><input type="submit" value="Отправить"></p>
+    <p><input type="submit" value="Отправить"><input type="button" onclick="window.history.back()" value="Отмена"></p>
 </form>
 </body>
 </html>

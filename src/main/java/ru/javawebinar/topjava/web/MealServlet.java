@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.util.MealsUtil.filteredByStreams;
@@ -30,9 +31,10 @@ public class MealServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("redirect to meals");
         String forward = "";
-        String action = request.getParameter("action");
-        action = action == null ? "" : action.toLowerCase();
-        switch (action) {
+        Optional<String>  action = Optional.ofNullable(request.getParameter("action"));
+       // action = action == null ? "" : action.toLowerCase();
+   //     Optional<String>
+        switch (action.orElse("").toLowerCase()) {
 
             case "add": {
                 forward = INSERT_OR_EDIT;
