@@ -1,0 +1,44 @@
+Index: src/main/resources/spring/spring-app.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/resources/spring/spring-app.xml	(revision ab4247885f1f5079c756c113e59fe704ac358d55)
++++ src/main/resources/spring/spring-app.xml	(date 1581535143280)
+@@ -8,7 +8,7 @@
+         <bean class="ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository" id="inmemoryUserRepository"/>
+ 
+         <bean class="ru.javawebinar.topjava.service.UserService">
+-            <property name="repository" ref="inmemoryUserRepository"/>
++            <constructor-arg name="repository" ref="inmemoryUserRepository"/>
+         </bean>
+     -->
+ 
+Index: src/main/java/ru/javawebinar/topjava/service/UserService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/service/UserService.java	(revision ab4247885f1f5079c756c113e59fe704ac358d55)
++++ src/main/java/ru/javawebinar/topjava/service/UserService.java	(date 1581535220922)
+@@ -1,6 +1,5 @@
+ package ru.javawebinar.topjava.service;
+ 
+-import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ import ru.javawebinar.topjava.model.User;
+ import ru.javawebinar.topjava.repository.UserRepository;
+@@ -14,8 +13,11 @@
+ @Service
+ public class UserService {
+ 
+-    @Autowired
+-    private UserRepository repository;
++    private final UserRepository repository;
++
++    public UserService(UserRepository repository) {
++        this.repository = repository;
++    }
+ 
+     public User create(User user) {
+         return repository.save(user);
