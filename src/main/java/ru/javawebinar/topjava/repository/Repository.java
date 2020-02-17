@@ -6,7 +6,7 @@ import ru.javawebinar.topjava.model.User;
 import java.util.Collection;
 import java.util.List;
 
-public interface Repository <I extends Number,T extends AbstractBaseEntity>  {
+public interface Repository <I ,T >  {
     // null if not found, when updated
     T save(T user);
 
@@ -16,5 +16,5 @@ public interface Repository <I extends Number,T extends AbstractBaseEntity>  {
     // null if not found
     T get(I id);
 
-    Collection<I> getAll();
+    Collection<T> getAll();
 }
