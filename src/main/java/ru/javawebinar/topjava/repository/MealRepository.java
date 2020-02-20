@@ -1,19 +1,20 @@
 package ru.javawebinar.topjava.repository;
 
+import ru.javawebinar.topjava.model.AbstractBaseEntity;
 import ru.javawebinar.topjava.model.Meal;
 
 import java.util.List;
 
-public interface MealRepository extends Repository<Integer,Meal> {
+public interface MealRepository<I extends Number,T extends AbstractBaseEntity<I>> extends Repository<I,T> {
     // null if not found, when updated
-    Meal save(Meal meal,Integer id);
+    T save(T meal,I id);
 
     // false if not found
-    boolean delete(int id, int userID);
+    boolean delete(I id, I userID);
 
     // null if not found
-    Meal get(int id, int userID);
+    Meal get(I id, I userID);
 
-    List<Meal> getAll(int userID);
+    List<T> getAll(I userID);
 
 }

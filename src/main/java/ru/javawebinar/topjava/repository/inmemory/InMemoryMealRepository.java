@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Repository
-public class InMemoryMealRepository extends BaseRepository<Integer, Meal> implements MealRepository {
+public class InMemoryMealRepository extends BaseRepository<Integer, Meal> implements MealRepository<Integer, Meal> {
     private   AtomicInteger counter;// = new AtomicInteger(0);
     {
         counter = new AtomicInteger(0);
@@ -36,18 +36,18 @@ public class InMemoryMealRepository extends BaseRepository<Integer, Meal> implem
     }
 
     @Override
-    public boolean delete(int id, int userID) {
+    public boolean delete(Integer id, Integer userID) {
         return get(id, userID) != null && (repository.remove(id) != null);
     }
 
     @Override
-    public Meal get(int id, int userID) {
+    public Meal get(Integer id, Integer userID) {
         final Meal meal = get(id);
         return meal != null && (Integer)meal.getId() == id ? meal : null;
     }
 
     @Override
-    public List<Meal> getAll(int userID) {
+    public List<Meal> getAll(Integer userID) {
         return getAll().stream()
                 //   return repository.values().stream()
                 .filter(meal -> meal.getUserID() != null && meal.getUserID() == userID)

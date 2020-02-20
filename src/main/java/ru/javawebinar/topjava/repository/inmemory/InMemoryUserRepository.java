@@ -9,7 +9,7 @@ import ru.javawebinar.topjava.repository.UserRepository;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public class InMemoryUserRepository extends BaseRepository<Integer,User> implements UserRepository{
+public class InMemoryUserRepository extends BaseRepository<Integer,User> implements UserRepository<Integer,User>{
     private   AtomicInteger counter;
      {
        counter = new AtomicInteger(0);

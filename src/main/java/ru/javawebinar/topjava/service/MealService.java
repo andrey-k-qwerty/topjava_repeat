@@ -11,7 +11,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 @Service
 public class MealService {
 
-    private MealRepository repository;
+    private MealRepository<Integer,Meal> repository;
 
     public MealService(MealRepository repository) {
         this.repository = repository;
