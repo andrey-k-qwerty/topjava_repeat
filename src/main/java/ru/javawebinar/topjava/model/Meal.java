@@ -61,9 +61,9 @@ public class Meal extends AbstractBaseEntity<Integer>{
 
     @Override
     public String toString() {
-        return "Meal{" +
+        return "Meal {" +
                 "id=" + id +
-                "userID=" + userID +
+                ", userID=" + userID +
                 ", dateTime=" + dateTime +
                 ", description='" + description + '\'' +
                 ", calories=" + calories +
