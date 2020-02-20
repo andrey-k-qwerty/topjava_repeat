@@ -10,11 +10,11 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BaseRepository<I extends Number, T extends AbstractBaseEntity> implements Repository<I, T> {
+public abstract class BaseRepository<I extends Number, T extends AbstractBaseEntity<I>> implements Repository<I, T> {
     protected  final Logger log = LoggerFactory.getLogger(getClass());
     // делать для каждого отдельный счетчик или общий? - решил каждому отдельно
-    protected  AtomicInteger counter;// = new AtomicInteger(0);
-    protected Map<Integer, T> repository = new ConcurrentHashMap<>();
+  //  protected  AtomicInteger counter = new AtomicInteger(0);
+    protected Map<I, T> repository = new ConcurrentHashMap<>();
 
     // null if not found, when updated
     public T save(T entity) {
@@ -35,7 +35,6 @@ public class BaseRepository<I extends Number, T extends AbstractBaseEntity> impl
         return repository.remove(id) != null;
     }
 
-
     // null if not found
     public T get(I id) {
         log.info("get {}", id);
@@ -47,8 +46,9 @@ public class BaseRepository<I extends Number, T extends AbstractBaseEntity> impl
         return repository.values();
     }
     // через это метод можно полностью сделать абстрактный дженериковый репозиторий
-    // помечаем его как обстрактный и реализуем его у дитей
-    public int nextID() {
+    // помечаем его как обстрактный и реализуем его у в подклассах
+  /* public int nextID() {
        return counter.incrementAndGet();
-    }
+    }*/
+    public abstract I nextID();
 }

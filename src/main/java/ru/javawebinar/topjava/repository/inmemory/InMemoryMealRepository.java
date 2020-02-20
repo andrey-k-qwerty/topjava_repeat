@@ -8,7 +8,6 @@ import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryMealRepository extends BaseRepository<Integer, Meal> implements MealRepository {
+    private   AtomicInteger counter;// = new AtomicInteger(0);
     {
         counter = new AtomicInteger(0);
         MealsUtil.MEALS.forEach(meal -> save(meal, 1));
@@ -28,7 +28,7 @@ public class InMemoryMealRepository extends BaseRepository<Integer, Meal> implem
 
     @Override
     public Meal save(Meal meal, Integer userId) {
-        if (meal.isNew() || (get(meal.getId(), userId) != null)) {
+        if (meal.isNew() || (get((Integer) meal.getId(), userId) != null)) {
             meal.setUserID(userId);
             return save(meal);
         }
@@ -43,7 +43,7 @@ public class InMemoryMealRepository extends BaseRepository<Integer, Meal> implem
     @Override
     public Meal get(int id, int userID) {
         final Meal meal = get(id);
-        return meal != null && meal.getId() == id ? meal : null;
+        return meal != null && (Integer)meal.getId() == id ? meal : null;
     }
 
     @Override
@@ -53,6 +53,12 @@ public class InMemoryMealRepository extends BaseRepository<Integer, Meal> implem
                 .filter(meal -> meal.getUserID() != null && meal.getUserID() == userID)
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                 .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public Integer nextID() {
+        return counter.incrementAndGet();
     }
 }
 

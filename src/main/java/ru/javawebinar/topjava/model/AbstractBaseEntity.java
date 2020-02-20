@@ -1,17 +1,17 @@
 package ru.javawebinar.topjava.model;
 
-public abstract class AbstractBaseEntity {
-    protected Integer id;
+public abstract class AbstractBaseEntity<I extends Number> {
+    protected I id;
 
-    protected AbstractBaseEntity(Integer id) {
+    protected AbstractBaseEntity(I id) {
         this.id = id;
     }
 
-    public void setId(Integer id) {
+    public void setId(I id) {
         this.id = id;
     }
 
-    public Integer getId() {
+    public I getId() {
         return id;
     }
 

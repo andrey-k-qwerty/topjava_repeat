@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class InMemoryUserRepository extends BaseRepository<Integer,User> implements UserRepository{
-
+    private   AtomicInteger counter;
      {
        counter = new AtomicInteger(0);
        save(new User(null, "admin", "admin@mail.ru", "password", Role.ROLE_ADMIN));
@@ -21,5 +21,10 @@ public class InMemoryUserRepository extends BaseRepository<Integer,User> impleme
     public User getByEmail(String email) {
         log.info("getByEmail {}", email);
         return repository.values().stream().filter(u -> u.getEmail().equalsIgnoreCase(email)).findFirst().get();
+    }
+
+    @Override
+    public Integer nextID() {
+        return counter.incrementAndGet();
     }
 }

@@ -1,12 +1,8 @@
 package ru.javawebinar.topjava.repository;
 
-import ru.javawebinar.topjava.model.AbstractBaseEntity;
-import ru.javawebinar.topjava.model.User;
-
 import java.util.Collection;
-import java.util.List;
 
-public interface Repository <I  ,T >  {
+public interface Repository <I extends Number  ,T >  {
     // null if not found, when updated
     T save(T user);
 
