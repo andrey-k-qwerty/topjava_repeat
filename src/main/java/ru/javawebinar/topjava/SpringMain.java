@@ -23,7 +23,7 @@ public class SpringMain {
             MealRestController mealRestController =  appCtx.getBean(MealRestController.class);
             setAuthId(user.getId());
             System.out.println("mealRestController.getAll() = " + mealRestController.getAll());
-            mealRestController.get(1); // exeption
+            System.out.println("mealRestController.get(1) = " + mealRestController.get(1));
         }
     }
 }
