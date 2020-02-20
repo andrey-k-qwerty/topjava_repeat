@@ -6,7 +6,7 @@ import ru.javawebinar.topjava.model.User;
 import java.util.Collection;
 import java.util.List;
 
-public interface Repository <I ,T >  {
+public interface Repository <I  ,T >  {
     // null if not found, when updated
     T save(T user);
 
