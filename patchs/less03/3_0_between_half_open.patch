@@ -1,0 +1,34 @@
+Index: src/main/java/ru/javawebinar/topjava/util/MealsUtil.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/util/MealsUtil.java	(revision 1f68647f00b53b30dc9ed183b1ef95097fe37029)
++++ src/main/java/ru/javawebinar/topjava/util/MealsUtil.java	(date 1581995220090)
+@@ -32,7 +32,7 @@
+     }
+ 
+     public static List<MealTo> getFilteredTos(Collection<Meal> meals, int caloriesPerDay, LocalTime startTime, LocalTime endTime) {
+-        return filteredByStreams(meals, caloriesPerDay, meal -> DateTimeUtil.isBetweenInclusive(meal.getTime(), startTime, endTime));
++        return filteredByStreams(meals, caloriesPerDay, meal -> DateTimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime));
+     }
+ 
+     public static List<MealTo> filteredByStreams(Collection<Meal> meals, int caloriesPerDay, Predicate<Meal> filter) {
+Index: src/main/java/ru/javawebinar/topjava/util/DateTimeUtil.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/util/DateTimeUtil.java	(revision 1f68647f00b53b30dc9ed183b1ef95097fe37029)
++++ src/main/java/ru/javawebinar/topjava/util/DateTimeUtil.java	(date 1581995220102)
+@@ -7,8 +7,8 @@
+ public class DateTimeUtil {
+     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+ 
+-    public static boolean isBetweenInclusive(LocalTime lt, LocalTime startTime, LocalTime endTime) {
+-        return lt.compareTo(startTime) >= 0 && lt.compareTo(endTime) <= 0;
++    public static boolean isBetweenHalfOpen(LocalTime lt, LocalTime startTime, LocalTime endTime) {
++        return lt.compareTo(startTime) >= 0 && lt.compareTo(endTime) < 0;
+     }
+ 
+     public static String toString(LocalDateTime ldt) {
