@@ -6,25 +6,27 @@ import ru.javawebinar.topjava.model.AbstractBaseEntity;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BaseRepository<I extends Number, T extends AbstractBaseEntity> implements Repository<I, T> {
-    protected static final Logger log = LoggerFactory.getLogger(BaseRepository.class);
-    // делать для каждого отдельный счетчик или общий?
-    protected static AtomicInteger counter = new AtomicInteger(0);
-    protected Map<I, T> repository = new ConcurrentHashMap<>();
+    protected  final Logger log = LoggerFactory.getLogger(getClass());
+    // делать для каждого отдельный счетчик или общий? - решил каждому отдельно
+    protected  AtomicInteger counter;// = new AtomicInteger(0);
+    protected Map<Integer, T> repository = new ConcurrentHashMap<>();
 
     // null if not found, when updated
     public T save(T entity) {
+        Objects.requireNonNull(entity, "Entity must not be null");
         log.info("save {}", entity);
-        if (entity.isNew()) {
-            entity.setId(counter.incrementAndGet());
-            repository.put((I) entity.getId(), entity);
+        if (Objects.requireNonNull(entity, "Entity must not be null").isNew()) {
+            entity.setId(nextID());
+            repository.put(entity.getId(), entity);
             return entity;
         }
         // handle case: update, but not present in storage
-        return repository.computeIfPresent((I) entity.getId(), (id, oldMeal) -> entity);
+        return repository.computeIfPresent(entity.getId(), (id, oldMeal) -> entity);
     }
 
     // false if not found
@@ -43,5 +45,10 @@ public class BaseRepository<I extends Number, T extends AbstractBaseEntity> impl
     public Collection<T> getAll() {
         log.info("getAll");
         return repository.values();
+    }
+    // через это метод можно полностью сделать абстрактный дженериковый репозиторий
+    // помечаем его как обстрактный и реализуем его у дитей
+    public int nextID() {
+       return counter.incrementAndGet();
     }
 }
