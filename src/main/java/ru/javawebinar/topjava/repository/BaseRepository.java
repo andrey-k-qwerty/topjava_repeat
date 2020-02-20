@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class BaseRepository<I extends Number, T extends AbstractBaseEntity<I>> implements Repository<I, T> {
     protected  final Logger log = LoggerFactory.getLogger(getClass());
     // делать для каждого отдельный счетчик или общий? - решил каждому отдельно
-  //  protected  AtomicInteger counter = new AtomicInteger(0);
+    //  protected  AtomicInteger counter = new AtomicInteger(0);
     protected Map<I, T> repository = new ConcurrentHashMap<>();
 
     // null if not found, when updated
