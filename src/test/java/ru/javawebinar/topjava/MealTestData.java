@@ -31,29 +31,16 @@ public class MealTestData {
     public static final int LAST_SEQ_ID = START_SEQ + 8;
     public static final List<Meal> ALL_MEALS = Stream.concat(USER_MEALS.stream(), ADMIN_MEALS.stream()).collect(Collectors.toList());
 
-
-    //    public static final User USER = new User(USER_ID, "User", "user@yandex.ru", "password", Role.ROLE_USER);
-//    public static final User ADMIN = new User(ADMIN_ID, "Admin", "admin@gmail.com", "admin", Role.ROLE_ADMIN);
-//
-//    public static void assertMatch(User actual, User expected) {
-//        assertThat(actual).isEqualToIgnoringGivenFields(expected, "registered", "roles");
-//    }
-    public static void assertMatch(Meal actual, Meal expected) {
-        //  assertThat(actual).isEqualToIgnoringGivenFields(expected, "roles");
-        assertThat(actual).isEqualToComparingFieldByField(expected);
-
+    public static Meal newMeal() {
+        return new Meal(LocalDateTime.now(),"Ням-ням",555);
     }
 
+    public static void assertMatch(Meal actual, Meal expected) {
+        assertThat(actual).isEqualToComparingFieldByField(expected);
+    }
 
-    //    public static void assertMatch(Iterable<User> actual, User... expected) {
-//        assertMatch(actual, Arrays.asList(expected));
-//    }
     public static void assertMatch(List<Meal> actual, List<Meal> expected) {
         assertThat(actual).isEqualTo(expected);
     }
-//    public static void assertMatch(Iterable<User> actual, Iterable<User> expected) {
-//        assertThat(actual).usingElementComparatorIgnoringFields("registered", "roles").isEqualTo(expected);
-//    }
-
 
 }
