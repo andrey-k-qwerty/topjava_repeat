@@ -1,5 +1,7 @@
 package ru.javawebinar.topjava.service.generic;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import ru.javawebinar.topjava.model.generic.User;
@@ -12,12 +14,12 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFound;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
 @Service
-public class UserService {
-
+public class UserServiceJdbc {
     private final UserRepository<Integer, User> repository;
-
-    public UserService(UserRepository repository) {
+    @Autowired
+    public UserServiceJdbc( UserRepository<Integer, User> repository) {
         this.repository = repository;
+
     }
 
     public User create(User user) {
