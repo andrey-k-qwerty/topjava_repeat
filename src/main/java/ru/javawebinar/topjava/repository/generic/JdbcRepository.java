@@ -29,7 +29,7 @@ public abstract class JdbcRepository<I extends Number, T extends AbstractBaseEnt
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    private final SimpleJdbcInsert insertEntity;
+ //   private final SimpleJdbcInsert insertEntity;
 
     //    protected  String sqlUpdate = "UPDATE users SET name=:name, email=:email, password=:password, " +
     //            "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id";
@@ -50,9 +50,9 @@ public abstract class JdbcRepository<I extends Number, T extends AbstractBaseEnt
 
     public JdbcRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
 
-        this.insertEntity = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName(sqlTable)
-                .usingGeneratedKeyColumns("id");
+//        this.insertEntity = new SimpleJdbcInsert(jdbcTemplate)
+//                .withTableName(sqlTable)
+//                .usingGeneratedKeyColumns("id");
 
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
@@ -68,9 +68,9 @@ public abstract class JdbcRepository<I extends Number, T extends AbstractBaseEnt
     }
 
     @Override
-    public T save(T user) {
-        BeanPropertySqlParameterSource map = new BeanPropertySqlParameterSource(user);
-        if (user.isNew()) {
+    public T save(T entity) {
+        BeanPropertySqlParameterSource map = new BeanPropertySqlParameterSource(entity);
+        if (entity.isNew()) {
 
             // Этот вариант НЕ работает! фак! чето с sql(((...
             //   Number newKey = insertEntity.executeAndReturnKey(map);
@@ -82,14 +82,14 @@ public abstract class JdbcRepository<I extends Number, T extends AbstractBaseEnt
 
             // Точто нужно))
             I newKey = namedParameterJdbcTemplate.queryForObject(sqlInsert, map, getIdType());
-            user.setId(newKey);
+            entity.setId(newKey);
         } else {
             if (namedParameterJdbcTemplate.update(
                     sqlUpdate, map) == 0) {
                 return null;
             }
         }
-        return user;
+        return entity;
     }
 
     @Override
@@ -99,8 +99,8 @@ public abstract class JdbcRepository<I extends Number, T extends AbstractBaseEnt
 
     @Override
     public T get(I id) {
-        List<T> users = jdbcTemplate.query(sqlGetbyID, ROW_MAPPER, id);
-        return DataAccessUtils.singleResult(users);
+        List<T> entity = jdbcTemplate.query(sqlGetbyID, ROW_MAPPER, id);
+        return DataAccessUtils.singleResult(entity);
     }
 
     @Override
