@@ -1,0 +1,568 @@
+Index: src/main/java/ru/javawebinar/topjava/repository/generic/JdbcRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/generic/JdbcRepository.java	(date 1582713813355)
++++ src/main/java/ru/javawebinar/topjava/repository/generic/JdbcRepository.java	(date 1582713813355)
+@@ -0,0 +1,84 @@
++package ru.javawebinar.topjava.repository.generic;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.dao.support.DataAccessUtils;
++import org.springframework.jdbc.core.BeanPropertyRowMapper;
++import org.springframework.jdbc.core.JdbcTemplate;
++import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
++import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
++import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
++import ru.javawebinar.topjava.model.generic.AbstractBaseEntity;
++
++import java.util.Collection;
++import java.util.List;
++
++public abstract class JdbcRepository<I extends Number, T extends AbstractBaseEntity<I>> implements Repository<I, T> {
++    protected final Logger log = LoggerFactory.getLogger(getClass());
++
++    private Class<T> entityBeanType;
++
++    protected final BeanPropertyRowMapper<T> ROW_MAPPER = BeanPropertyRowMapper.newInstance(getEntityBeanType());
++
++    protected final JdbcTemplate jdbcTemplate;
++
++    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
++
++    private final SimpleJdbcInsert insertUser;
++
++    //    protected  String sqlUpdate = "UPDATE users SET name=:name, email=:email, password=:password, " +
++    //            "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id";
++
++    // переобределить в потомках
++    protected String sqlUpdate = "";
++    //    protected  String sqlDelete = "DELETE FROM users WHERE id=?";
++    protected String sqlDelete = "";
++    //    String sqlGetbyID = "SELECT * FROM users WHERE id=?";
++    protected String sqlGetbyID = "";
++    //    String sqlGetAll = "SELECT * FROM users ORDER BY name, email";
++    String sqlGetAll = "";
++
++    public JdbcRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
++        this.insertUser = new SimpleJdbcInsert(jdbcTemplate)
++                .withTableName("users")
++                .usingGeneratedKeyColumns("id");
++
++        this.jdbcTemplate = jdbcTemplate;
++        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
++    }
++
++    public Class<T> getEntityBeanType() {
++        return entityBeanType;
++    }
++
++    @Override
++    public T save(T user) {
++        BeanPropertySqlParameterSource map = new BeanPropertySqlParameterSource(user);
++        if (user.isNew()) {
++            Number newKey = insertUser.executeAndReturnKey(map);
++            user.setId((I) newKey);
++        } else {
++            if (namedParameterJdbcTemplate.update(
++                    sqlUpdate, map) == 0) {
++                return null;
++            }
++        }
++        return user;
++    }
++
++    @Override
++    public boolean delete(I id) {
++        return jdbcTemplate.update(sqlDelete, id) != 0;
++    }
++
++    @Override
++    public T get(I id) {
++        List<T> users = jdbcTemplate.query(sqlGetbyID, ROW_MAPPER, id);
++        return DataAccessUtils.singleResult(users);
++    }
++
++    @Override
++    public List<T> getAll() {
++        return jdbcTemplate.query(sqlGetAll, ROW_MAPPER);
++    }
++}
+Index: src/main/java/ru/javawebinar/topjava/repository/generic/JdbcUserRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/generic/JdbcUserRepository.java	(date 1582713008248)
++++ src/main/java/ru/javawebinar/topjava/repository/generic/JdbcUserRepository.java	(date 1582713008248)
+@@ -0,0 +1,25 @@
++package ru.javawebinar.topjava.repository.generic;
++
++import org.springframework.jdbc.core.JdbcTemplate;
++import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
++import org.springframework.stereotype.Repository;
++import ru.javawebinar.topjava.model.generic.User;
++
++@Repository
++public class JdbcUserRepository extends JdbcRepository<Integer, User> implements UserRepository<Integer, User> {
++    public JdbcUserRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
++        super(jdbcTemplate, namedParameterJdbcTemplate);
++
++        String sqlUpdate = "UPDATE users SET name=:name, email=:email, password=:password, " +
++                "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id";
++        String sqlDelete = "DELETE FROM users WHERE id=?";
++
++        String sqlGetbyID = "SELECT * FROM users WHERE id=?";
++
++        String sqlGetAll = "SELECT * FROM users ORDER BY name, email";
++    }
++     @Override
++    public User getByEmail(String email) {
++        return (User) jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
++    }
++}
+Index: src/main/java/ru/javawebinar/topjava/model/generic/Meal.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/model/generic/Meal.java	(date 1582707582910)
++++ src/main/java/ru/javawebinar/topjava/model/generic/Meal.java	(date 1582707582910)
+@@ -0,0 +1,72 @@
++package ru.javawebinar.topjava.model.generic;
++
++import java.time.LocalDate;
++import java.time.LocalDateTime;
++import java.time.LocalTime;
++
++public class Meal extends AbstractBaseEntity<Integer>{
++    private  LocalDateTime dateTime;
++
++    private  String description;
++
++    private  int calories;
++
++    public Integer getUserID() {
++        return userID;
++    }
++
++    public void setUserID(Integer userID) {
++        this.userID = userID;
++    }
++
++    private  Integer userID;
++
++    public Meal(LocalDateTime dateTime, String description, int calories) {
++        this(null, null, dateTime, description, calories);
++    }
++
++
++    public Meal(Integer id, Integer userID, LocalDateTime dateTime, String description, int calories) {
++        super(id);
++        // this.id = id;
++        this.dateTime = dateTime;
++        this.description = description;
++        this.calories = calories;
++        this.userID = userID;
++    }
++
++
++
++
++    public LocalDateTime getDateTime() {
++        return dateTime;
++    }
++
++    public String getDescription() {
++        return description;
++    }
++
++    public int getCalories() {
++        return calories;
++    }
++
++    public LocalDate getDate() {
++        return dateTime.toLocalDate();
++    }
++
++    public LocalTime getTime() {
++        return dateTime.toLocalTime();
++    }
++
++
++    @Override
++    public String toString() {
++        return "Meal{" +
++                "id=" + id +
++                "userID=" + userID +
++                ", dateTime=" + dateTime +
++                ", description='" + description + '\'' +
++                ", calories=" + calories +
++                '}';
++    }
++}
+Index: src/main/java/ru/javawebinar/topjava/model/generic/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/model/generic/User.java	(date 1582707582906)
++++ src/main/java/ru/javawebinar/topjava/model/generic/User.java	(date 1582707582906)
+@@ -0,0 +1,93 @@
++package ru.javawebinar.topjava.model.generic;
++
++import ru.javawebinar.topjava.model.Role;
++
++import java.util.Date;
++import java.util.EnumSet;
++import java.util.Set;
++
++import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
++
++public class User extends AbstractNamedEntity<Integer> {
++
++    private String email;
++
++    private String password;
++
++    private boolean enabled = true;
++
++    private Date registered = new Date();
++
++    private Set<Role> roles;
++
++    private int caloriesPerDay = DEFAULT_CALORIES_PER_DAY;
++
++    public User(Integer id, String name, String email, String password, Role role, Role... roles) {
++        this(id, name, email, password, DEFAULT_CALORIES_PER_DAY, true, EnumSet.of(role, roles));
++    }
++
++    public User(Integer id, String name, String email, String password, int caloriesPerDay, boolean enabled, Set<Role> roles) {
++        super(id, name);
++        this.email = email;
++        this.password = password;
++        this.caloriesPerDay = caloriesPerDay;
++        this.enabled = enabled;
++        this.roles = roles;
++    }
++
++    public String getEmail() {
++        return email;
++    }
++
++    public void setEmail(String email) {
++        this.email = email;
++    }
++
++    public void setPassword(String password) {
++        this.password = password;
++    }
++
++    public Date getRegistered() {
++        return registered;
++    }
++
++    public void setRegistered(Date registered) {
++        this.registered = registered;
++    }
++
++    public void setEnabled(boolean enabled) {
++        this.enabled = enabled;
++    }
++
++    public int getCaloriesPerDay() {
++        return caloriesPerDay;
++    }
++
++    public void setCaloriesPerDay(int caloriesPerDay) {
++        this.caloriesPerDay = caloriesPerDay;
++    }
++
++    public boolean isEnabled() {
++        return enabled;
++    }
++
++    public Set<Role> getRoles() {
++        return roles;
++    }
++
++    public String getPassword() {
++        return password;
++    }
++
++    @Override
++    public String toString() {
++        return "User (" +
++                "id=" + id +
++                ", email=" + email +
++                ", name=" + name +
++                ", enabled=" + enabled +
++                ", roles=" + roles +
++                ", caloriesPerDay=" + caloriesPerDay +
++                ')';
++    }
++}
+\ No newline at end of file
+Index: src/main/java/ru/javawebinar/topjava/repository/generic/Repository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/generic/Repository.java	(date 1582707582901)
++++ src/main/java/ru/javawebinar/topjava/repository/generic/Repository.java	(date 1582707582901)
+@@ -0,0 +1,16 @@
++package ru.javawebinar.topjava.repository.generic;
++
++import java.util.Collection;
++
++public interface Repository <I extends Number  ,T >  {
++    // null if not found, when updated
++    T save(T user);
++
++    // false if not found
++    boolean delete(I id);
++
++    // null if not found
++    T get(I id);
++
++    Collection<T> getAll();
++}
+Index: src/main/java/ru/javawebinar/topjava/model/generic/AbstractBaseEntity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/model/generic/AbstractBaseEntity.java	(date 1582707582915)
++++ src/main/java/ru/javawebinar/topjava/model/generic/AbstractBaseEntity.java	(date 1582707582915)
+@@ -0,0 +1,28 @@
++package ru.javawebinar.topjava.model.generic;
++
++public abstract class AbstractBaseEntity<I extends Number> {
++    protected I id;
++
++    protected AbstractBaseEntity(I id) {
++        this.id = id;
++    }
++
++    public void setId(I id) {
++        this.id = id;
++    }
++
++    public I getId() {
++        return id;
++    }
++
++    public boolean isNew() {
++        return this.id == null;
++    }
++
++    @Override
++    public String toString() {
++        return getClass().getSimpleName() + ":" + id;
++    }
++
++
++}
+\ No newline at end of file
+Index: src/main/java/ru/javawebinar/topjava/model/generic/AbstractNamedEntity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/model/generic/AbstractNamedEntity.java	(date 1582707582877)
++++ src/main/java/ru/javawebinar/topjava/model/generic/AbstractNamedEntity.java	(date 1582707582877)
+@@ -0,0 +1,24 @@
++package ru.javawebinar.topjava.model.generic;
++
++public abstract class AbstractNamedEntity<I extends Number> extends AbstractBaseEntity<I> {
++
++    protected String name;
++
++    protected AbstractNamedEntity(I id, String name) {
++        super(id);
++        this.name = name;
++    }
++
++    public void setName(String name) {
++        this.name = name;
++    }
++
++    public String getName() {
++        return this.name;
++    }
++
++    @Override
++    public String toString() {
++        return super.toString() + '(' + name + ')';
++    }
++}
+\ No newline at end of file
+Index: src/main/java/ru/javawebinar/topjava/repository/generic/UserRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/generic/UserRepository.java	(date 1582713813369)
++++ src/main/java/ru/javawebinar/topjava/repository/generic/UserRepository.java	(date 1582713813369)
+@@ -0,0 +1,12 @@
++package ru.javawebinar.topjava.repository.generic;
++
++
++import ru.javawebinar.topjava.model.generic.AbstractBaseEntity;
++import ru.javawebinar.topjava.model.generic.User;
++
++public interface UserRepository<I extends Number,T extends AbstractBaseEntity<I>> extends Repository<I,T>  {
++    // null if not found
++    T getByEmail(String email);
++
++
++}
+\ No newline at end of file
+Index: src/main/java/ru/javawebinar/topjava/service/generic/UserService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/service/generic/UserService.java	(date 1582713813374)
++++ src/main/java/ru/javawebinar/topjava/service/generic/UserService.java	(date 1582713813374)
+@@ -0,0 +1,46 @@
++package ru.javawebinar.topjava.service.generic;
++
++import org.springframework.stereotype.Service;
++
++import ru.javawebinar.topjava.model.generic.User;
++import ru.javawebinar.topjava.repository.generic.UserRepository;
++
++
++import java.util.List;
++
++import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFound;
++import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
++
++@Service
++public class UserService {
++
++    private final UserRepository<Integer, User> repository;
++
++    public UserService(UserRepository repository) {
++        this.repository = repository;
++    }
++
++    public User create(User user) {
++        return repository.save(user);
++    }
++
++    public void delete(int id) {
++        checkNotFoundWithId(repository.delete(id), id);
++    }
++
++    public User get(int id) {
++        return checkNotFoundWithId(repository.get(id), id);
++    }
++
++    public User getByEmail(String email) {
++        return checkNotFound(repository.getByEmail(email), "email=" + email);
++    }
++
++    public List<User> getAll() {
++        return (List<User>) repository.getAll();
++    }
++
++    public void update(User user) {
++        checkNotFoundWithId(repository.save(user), user.getId());
++    }
++}
+\ No newline at end of file
+Index: src/main/java/ru/javawebinar/topjava/repository/generic/MealRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/generic/MealRepository.java	(date 1582707582888)
++++ src/main/java/ru/javawebinar/topjava/repository/generic/MealRepository.java	(date 1582707582888)
+@@ -0,0 +1,22 @@
++package ru.javawebinar.topjava.repository.generic;
++
++
++
++import ru.javawebinar.topjava.model.generic.AbstractBaseEntity;
++import ru.javawebinar.topjava.model.generic.Meal;
++
++import java.util.List;
++
++public interface MealRepository<I extends Number,T extends AbstractBaseEntity<I>> extends Repository<I,T> {
++    // null if not found, when updated
++    T save(T meal,I id);
++
++    // false if not found
++    boolean delete(I id, I userID);
++
++    // null if not found
++    Meal get(I id, I userID);
++
++    List<T> getAll(I userID);
++
++}
+Index: src/main/java/ru/javawebinar/topjava/repository/generic/BaseRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/generic/BaseRepository.java	(date 1582707582881)
++++ src/main/java/ru/javawebinar/topjava/repository/generic/BaseRepository.java	(date 1582707582881)
+@@ -0,0 +1,53 @@
++package ru.javawebinar.topjava.repository.generic;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import ru.javawebinar.topjava.model.generic.AbstractBaseEntity;
++
++import java.util.Collection;
++import java.util.Map;
++import java.util.Objects;
++import java.util.concurrent.ConcurrentHashMap;
++
++public abstract class BaseRepository<I extends Number, T extends AbstractBaseEntity<I>> implements Repository<I, T> {
++    protected  final Logger log = LoggerFactory.getLogger(getClass());
++    // делать для каждого отдельный счетчик или общий? - решил каждому отдельно
++    //  protected  AtomicInteger counter = new AtomicInteger(0);
++    protected Map<I, T> repository = new ConcurrentHashMap<>();
++
++    // null if not found, when updated
++    public T save(T entity) {
++        Objects.requireNonNull(entity, "Entity must not be null");
++        log.info("save {}", entity);
++        if (Objects.requireNonNull(entity, "Entity must not be null").isNew()) {
++            entity.setId(nextID());
++            repository.put(entity.getId(), entity);
++            return entity;
++        }
++        // handle case: update, but not present in storage
++        return repository.computeIfPresent(entity.getId(), (id, oldMeal) -> entity);
++    }
++
++    // false if not found
++    public boolean delete(I id) {
++        log.info("delete {}", id);
++        return repository.remove(id) != null;
++    }
++
++    // null if not found
++    public T get(I id) {
++        log.info("get {}", id);
++        return repository.get(id);
++    }
++
++    public Collection<T> getAll() {
++        log.info("getAll");
++        return repository.values();
++    }
++    // через это метод можно полностью сделать абстрактный дженериковый репозиторий
++    // помечаем его как обстрактный и реализуем его у в подклассах
++  /* public int nextID() {
++       return counter.incrementAndGet();
++    }*/
++    public abstract I nextID();
++}
