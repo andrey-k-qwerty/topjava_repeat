@@ -1,0 +1,111 @@
+Index: src/main/java/ru/javawebinar/topjava/repository/jpa/JpaMealRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/jpa/JpaMealRepository.java	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/main/java/ru/javawebinar/topjava/repository/jpa/JpaMealRepository.java	(date 1583334264329)
+@@ -31,7 +31,7 @@
+     }
+ 
+     @Override
+-    public List<Meal> getBetweenHalfOpen(LocalDateTime startDate, LocalDateTime endDate, int userId) {
++    public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
+         return null;
+     }
+ }
+\ No newline at end of file
+Index: src/main/resources/db/postgres.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/resources/db/postgres.properties	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/main/resources/db/postgres.properties	(date 1583334264330)
+@@ -8,7 +8,7 @@
+ database.driverClassName=org.postgresql.Driver
+ 
+ database.init=true
+-jdbc.initLocation=initDB.sql
++jdbc.initLocation=classpath:db/initDB.sql
+ jpa.showSql=true
+ hibernate.format_sql=true
+ hibernate.use_sql_comments=true
+\ No newline at end of file
+Index: src/main/resources/db/hsqldb.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/resources/db/hsqldb.properties	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/main/resources/db/hsqldb.properties	(date 1583334264330)
+@@ -6,7 +6,7 @@
+ database.driverClassName=org.hsqldb.jdbcDriver
+ 
+ database.init=true
+-jdbc.initLocation=initDB_hsql.sql
++jdbc.initLocation=classpath:db/initDB_hsql.sql
+ jpa.showSql=true
+ hibernate.format_sql=true
+ hibernate.use_sql_comments=true
+\ No newline at end of file
+Index: src/main/resources/spring/spring-db.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/resources/spring/spring-db.xml	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/main/resources/spring/spring-db.xml	(date 1583334282910)
+@@ -11,8 +11,8 @@
+ 
+     <!-- Change DB by comment/uncomment property-placeholder -->
+ 
+-<!--    <context:property-placeholder location="classpath:db/postgres.properties" system-properties-mode="OVERRIDE"/>-->
+-    <context:property-placeholder location="classpath:db/hsqldb.properties" system-properties-mode="OVERRIDE"/>
++    <context:property-placeholder location="classpath:db/postgres.properties" system-properties-mode="OVERRIDE"/>
++<!--    <context:property-placeholder location="classpath:db/hsqldb.properties" system-properties-mode="OVERRIDE"/>-->
+ 
+ <!--
+     For postgres driver logging
+@@ -26,7 +26,7 @@
+     <context:component-scan base-package="ru.javawebinar.**.repository.jpa"/>
+ 
+     <jdbc:initialize-database data-source="dataSource" enabled="${database.init}">
+-        <jdbc:script location="classpath:db/${jdbc.initLocation}"/>
++        <jdbc:script location="${jdbc.initLocation}"/>
+         <jdbc:script encoding="utf-8" location="classpath:db/populateDB.sql"/>
+     </jdbc:initialize-database>
+ 
+Index: src/main/java/ru/javawebinar/topjava/repository/MealRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/MealRepository.java	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/main/java/ru/javawebinar/topjava/repository/MealRepository.java	(date 1583329154079)
+@@ -19,5 +19,5 @@
+     List<Meal> getAll(int userId);
+ 
+     // ORDERED dateTime desc
+-    List<Meal> getBetweenHalfOpen(LocalDateTime startDate, LocalDateTime endDate, int userId);
++    List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId);
+ }
+Index: src/main/java/ru/javawebinar/topjava/repository/jdbc/JdbcMealRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/jdbc/JdbcMealRepository.java	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/main/java/ru/javawebinar/topjava/repository/jdbc/JdbcMealRepository.java	(date 1583329154068)
+@@ -79,9 +79,9 @@
+     }
+ 
+     @Override
+-    public List<Meal> getBetweenHalfOpen(LocalDateTime startDate, LocalDateTime endDate, int userId) {
++    public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
+         return jdbcTemplate.query(
+                 "SELECT * FROM meals WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC",
+-                ROW_MAPPER, userId, startDate, endDate);
++                ROW_MAPPER, userId, startDateTime, endDateTime);
+     }
+ }

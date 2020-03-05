@@ -1,0 +1,104 @@
+Index: src/test/java/ru/javawebinar/topjava/MealTestData.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/java/ru/javawebinar/topjava/MealTestData.java	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/test/java/ru/javawebinar/topjava/MealTestData.java	(date 1583315116702)
+@@ -10,6 +10,8 @@
+ import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
+ 
+ public class MealTestData {
++    public static TestMatcher<Meal> MEAL_MATCHER = TestMatcher.usingFieldsComparator();
++
+     public static final int MEAL1_ID = START_SEQ + 2;
+     public static final int ADMIN_MEAL_ID = START_SEQ + 9;
+ 
+@@ -25,13 +27,11 @@
+ 
+     public static final List<Meal> MEALS = Arrays.asList(MEAL7, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
+ 
+-    public static Meal getCreated() {
++    public static Meal getNew() {
+         return new Meal(null, of(2020, Month.JUNE, 1, 18, 0), "Созданный ужин", 300);
+     }
+ 
+     public static Meal getUpdated() {
+         return new Meal(MEAL1_ID, MEAL1.getDateTime(), "Обновленный завтрак", 200);
+     }
+-
+-    public static TestMatcher<Meal> MEAL_MATCHER = TestMatcher.of();
+ }
+Index: src/test/java/ru/javawebinar/topjava/service/MealServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/java/ru/javawebinar/topjava/service/MealServiceTest.java	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/test/java/ru/javawebinar/topjava/service/MealServiceTest.java	(date 1583315116704)
+@@ -7,7 +7,7 @@
+ import org.springframework.test.context.ContextConfiguration;
+ import org.springframework.test.context.jdbc.Sql;
+ import org.springframework.test.context.jdbc.SqlConfig;
+-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
++import org.springframework.test.context.junit4.SpringRunner;
+ import ru.javawebinar.topjava.model.Meal;
+ import ru.javawebinar.topjava.repository.MealRepository;
+ import ru.javawebinar.topjava.util.exception.NotFoundException;
+@@ -23,7 +23,7 @@
+         "classpath:spring/spring-app.xml",
+         "classpath:spring/spring-db.xml"
+ })
+-@RunWith(SpringJUnit4ClassRunner.class)
++@RunWith(SpringRunner.class)
+ @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
+ public class MealServiceTest {
+ 
+@@ -50,7 +50,7 @@
+ 
+     @Test
+     public void create() throws Exception {
+-        Meal newMeal = getCreated();
++        Meal newMeal = getNew();
+         Meal created = service.create(newMeal, USER_ID);
+         Integer newId = created.getId();
+         newMeal.setId(newId);
+Index: src/test/java/ru/javawebinar/topjava/TestMatcher.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/java/ru/javawebinar/topjava/TestMatcher.java	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/test/java/ru/javawebinar/topjava/TestMatcher.java	(date 1583315116703)
+@@ -11,7 +11,7 @@
+         this.fieldsToIgnore = fieldsToIgnore;
+     }
+ 
+-    public static <T> TestMatcher<T> of(String... fieldsToIgnore) {
++    public static <T> TestMatcher<T> usingFieldsComparator(String... fieldsToIgnore) {
+         return new TestMatcher<>(fieldsToIgnore);
+     }
+ 
+Index: src/test/java/ru/javawebinar/topjava/UserTestData.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/java/ru/javawebinar/topjava/UserTestData.java	(revision 9e5ba7384622e0fd6cf80d3ec18a93ab403fc6f5)
++++ src/test/java/ru/javawebinar/topjava/UserTestData.java	(date 1583231758839)
+@@ -9,6 +9,8 @@
+ import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
+ 
+ public class UserTestData {
++    public static TestMatcher<User> USER_MATCHER = TestMatcher.usingFieldsComparator("registered", "roles");
++
+     public static final int USER_ID = START_SEQ;
+     public static final int ADMIN_ID = START_SEQ + 1;
+ 
+@@ -25,6 +27,4 @@
+         updated.setCaloriesPerDay(330);
+         return updated;
+     }
+-
+-    public static TestMatcher<User> USER_MATCHER = TestMatcher.of("registered", "roles");
+ }
