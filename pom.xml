@@ -172,6 +172,12 @@
 
     <profiles>
         <profile>
+            <id>DataJpa</id>
+            <properties>
+                <spring.profiles.active>datajpa</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
             <id>hsqldb</id>
             <dependencies>
                 <dependency>
