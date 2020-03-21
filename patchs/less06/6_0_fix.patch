@@ -1,0 +1,102 @@
+Index: src/test/java/ru/javawebinar/topjava/service/MealServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/java/ru/javawebinar/topjava/service/MealServiceTest.java	(revision c8a37ced621cbfcbba2c65347c6dc29c7392448b)
++++ src/test/java/ru/javawebinar/topjava/service/MealServiceTest.java	(date 1583972150242)
+@@ -51,6 +51,11 @@
+         }
+     };
+ 
++    @Autowired
++    private MealService service;
++    @Autowired
++    private MealRepository repository;
++
+     @AfterClass
+     public static void printResult() {
+         log.info("\n---------------------------------" +
+@@ -60,11 +65,6 @@
+                 "\n---------------------------------");
+     }
+ 
+-    @Autowired
+-    private MealService service;
+-    @Autowired
+-    private MealRepository repository;
+-
+     @Test
+     public void delete() throws Exception {
+         service.delete(MEAL1_ID, USER_ID);
+Index: .codacy.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .codacy.yml	(revision c8a37ced621cbfcbba2c65347c6dc29c7392448b)
++++ .codacy.yml	(date 1583972187299)
+@@ -1,5 +1,5 @@
+ ---
+ exclude_paths:
+   - 'src/main/webapp/**'
+-  - 'README.md'
++  - '**.md'
+   - '**.sql'
+\ No newline at end of file
+Index: src/main/java/ru/javawebinar/topjava/repository/datajpa/DataJpaMealRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/datajpa/DataJpaMealRepository.java	(revision c8a37ced621cbfcbba2c65347c6dc29c7392448b)
++++ src/main/java/ru/javawebinar/topjava/repository/datajpa/DataJpaMealRepository.java	(date 1583972150236)
+@@ -1,6 +1,5 @@
+ package ru.javawebinar.topjava.repository.datajpa;
+ 
+-import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Repository;
+ import ru.javawebinar.topjava.model.Meal;
+ import ru.javawebinar.topjava.repository.MealRepository;
+@@ -11,8 +10,11 @@
+ @Repository
+ public class DataJpaMealRepository implements MealRepository {
+ 
+-    @Autowired
+-    private CrudMealRepository crudRepository;
++    private final CrudMealRepository crudRepository;
++
++    public DataJpaMealRepository(CrudMealRepository crudRepository) {
++        this.crudRepository = crudRepository;
++    }
+ 
+     @Override
+     public Meal save(Meal meal, int userId) {
+Index: src/main/java/ru/javawebinar/topjava/repository/datajpa/DataJpaUserRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/ru/javawebinar/topjava/repository/datajpa/DataJpaUserRepository.java	(revision c8a37ced621cbfcbba2c65347c6dc29c7392448b)
++++ src/main/java/ru/javawebinar/topjava/repository/datajpa/DataJpaUserRepository.java	(date 1583972150236)
+@@ -1,6 +1,5 @@
+ package ru.javawebinar.topjava.repository.datajpa;
+ 
+-import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.data.domain.Sort;
+ import org.springframework.stereotype.Repository;
+ import ru.javawebinar.topjava.model.User;
+@@ -12,8 +11,11 @@
+ public class DataJpaUserRepository implements UserRepository {
+     private static final Sort SORT_NAME_EMAIL = Sort.by(Sort.Direction.ASC, "name", "email");
+ 
+-    @Autowired
+-    private CrudUserRepository crudRepository;
++    private final CrudUserRepository crudRepository;
++
++    public DataJpaUserRepository(CrudUserRepository crudRepository) {
++        this.crudRepository = crudRepository;
++    }
+ 
+     @Override
+     public User save(User user) {
